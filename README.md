@@ -1,4 +1,4 @@
-# Java 版本管理器
+# java-version-manager-win
 
 一个适用于 Windows 操作系统的 Java 版本管理器应用程序，可以帮助您轻松管理和切换不同的 JDK 版本。
 
