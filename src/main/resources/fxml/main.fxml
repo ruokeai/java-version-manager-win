@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.jdkmanager.ui.MainController">
+    <top>
+        <HBox spacing="20.0" alignment="CENTER_LEFT" style="-fx-background-color: #f0f0f0; -fx-padding: 15;">
+            <children>
+                <Label text="Java版本管理器">
+                    <font>
+                        <Font name="System Bold" size="18.0"/>
+                    </font>
+                </Label>
+                <Separator orientation="VERTICAL"/>
+                <Label fx:id="currentJdkLabel" text="当前JDK: 未检测到"/>
+            </children>
+            <padding>
+                <Insets left="20.0" right="20.0"/>
+            </padding>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox spacing="10.0" style="-fx-padding: 20;">
+            <children>
+                <Label text="检测到的JDK版本:">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Label>
+                
+                <ListView fx:id="jdkListView" prefHeight="300.0" style="-fx-border-color: #cccccc; -fx-border-radius: 5;">
+                    <placeholder>
+                        <Label text="未检测到JDK，请点击'添加路径'或'刷新'按钮"/>
+                    </placeholder>
+                </ListView>
+                
+                <Label text="双击列表项可查看详细信息" textFill="#666666"/>
+            </children>
+        </VBox>
+    </center>
+    
+    <bottom>
+        <VBox spacing="15.0" style="-fx-background-color: #f8f8f8; -fx-padding: 20;">
+            <children>
+                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="环境变量作用域:">
+                            <font>
+                                <Font name="System Bold" size="12.0"/>
+                            </font>
+                        </Label>
+                        <CheckBox fx:id="userScopeCheck" text="用户级" selected="true"/>
+                        <CheckBox fx:id="systemScopeCheck" text="系统级(需要管理员权限)"/>
+                        <Label fx:id="permissionWarning" text="⚠ 需要管理员权限" textFill="#ff6600" visible="false"/>
+                    </children>
+                </HBox>
+                
+                <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                    <children>
+                        <Button fx:id="refreshButton" text="刷新" onAction="#refreshJdkList"/>
+                        <Button fx:id="addPathButton" text="添加路径" onAction="#addCustomPath"/>
+                        <Separator orientation="VERTICAL"/>
+                        <Button fx:id="switchButton" text="切换到此JDK" onAction="#switchJdk" disable="true" styleClass="primary"/>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </bottom>
+</BorderPane>

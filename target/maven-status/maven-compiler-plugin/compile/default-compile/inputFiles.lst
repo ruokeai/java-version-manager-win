@@ -1,0 +1,14 @@
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\JarLauncher.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\scanner\DefaultJdkScanner.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\exception\InsufficientPrivilegeException.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\module-info.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\env\EnvironmentManager.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\exception\JdkManagerException.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\scanner\JdkInfo.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\ui\MainController.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\config\AppConfig.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\env\EnvVariableScope.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\exception\EnvironmentVariableException.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\scanner\JdkScanner.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\JdkManagerApp.java
+C:\Users\luoyang\Desktop\javabb\src\main\java\com\jdkmanager\ui\JdkListCell.java

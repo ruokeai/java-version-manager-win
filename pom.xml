@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.jdkmanager</groupId>
+    <artifactId>jdk-manager</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Java版本管理器</name>
+    <description>一个适用于Windows操作系统的Java版本管理器应用程序</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <javafx.version>17.0.2</javafx.version>
+        <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+        <maven.shade.plugin.version>3.4.1</maven.shade.plugin.version>
+        <junit.version>5.9.2</junit.version>
+    </properties>
+
+    <dependencies>
+        <!-- JavaFX 依赖 - 编译和运行时都需要 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        
+        <!-- 添加JavaFX图形模块，这是运行时必需的 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        
+        <!-- 添加JavaFX基础模块 -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
+        <!-- 日志依赖 (可选，用于开发调试) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.7</version>
+        </dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <version>4.0.16-alpha</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <version>4.0.16-alpha</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Maven 编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <!-- JavaFX Maven 插件 -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>${javafx.maven.plugin.version}</version>
+                <configuration>
+                    <mainClass>com.jdkmanager.JdkManagerApp</mainClass>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Shade 插件 - 用于创建可执行JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven.shade.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <!-- 设置主类 -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.jdkmanager.JarLauncher</mainClass>
+                                    <!-- 添加JavaFX模块配置到清单文件 -->
+                                    <manifestEntries>
+                                        <Multi-Release>true</Multi-Release>
+                                        <Add-Opens>javafx.base/com.sun.javafx.reflect javafx.controls/com.sun.javafx.scene.control.behavior</Add-Opens>
+                                    </manifestEntries>
+                                </transformer>
+                                <!-- 处理服务资源 -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- 处理JavaFX资源 -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                                    <resource>module-info.class</resource>
+                                    <file>target/classes/module-info.class</file>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <finalName>jdk-manager-${project.version}-executable</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Surefire 插件 - 用于运行测试 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M9</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Dependency 插件 - 用于复制JavaFX模块 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <includeArtifactIds>javafx-controls,javafx-fxml,javafx-graphics,javafx-base</includeArtifactIds>
+                            <includeGroupIds>org.openjfx</includeGroupIds>
+                            <excludeTransitive>true</excludeTransitive>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-win-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules-win</outputDirectory>
+                            <includeArtifactIds>javafx-controls,javafx-fxml,javafx-graphics,javafx-base</includeArtifactIds>
+                            <includeGroupIds>org.openjfx</includeGroupIds>
+                            <excludeTransitive>true</excludeTransitive>
+                            <stripVersion>true</stripVersion>
+                            <classifier>win</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven Resources 插件 - 确保module-info.java正确复制 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <resources>
+                        <resource>
+                            <directory>src/main/java</directory>
+                            <includes>
+                                <include>**/*.java</include>
+                                <include>**/*.class</include>
+                                <include>module-info.java</include>
+                            </includes>
+                        </resource>
+                        <resource>
+                            <directory>src/main/resources</directory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+            
+            <!-- Maven Antrun 插件 - 用于创建modules-win目录并复制文件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>create-modules-win-dir</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- 创建modules-win目录 -->
+                                <mkdir dir="${project.build.directory}/modules-win"/>
+                                
+                                <!-- 检查Windows特定的JavaFX模块是否存在，如果存在则复制 -->
+                                <echo message="检查Windows特定的JavaFX模块..."/>
+                                <copy file="${project.build.directory}/modules/javafx-base-17.0.2-win.jar"
+                                      tofile="${project.build.directory}/modules-win/javafx-base.jar"
+                                      verbose="true" failonerror="false"/>
+                                <copy file="${project.build.directory}/modules/javafx-controls-17.0.2-win.jar"
+                                      tofile="${project.build.directory}/modules-win/javafx-controls.jar"
+                                      verbose="true" failonerror="false"/>
+                                <copy file="${project.build.directory}/modules/javafx-fxml-17.0.2-win.jar"
+                                      tofile="${project.build.directory}/modules-win/javafx-fxml.jar"
+                                      verbose="true" failonerror="false"/>
+                                <copy file="${project.build.directory}/modules/javafx-graphics-17.0.2-win.jar"
+                                      tofile="${project.build.directory}/modules-win/javafx-graphics.jar"
+                                      verbose="true" failonerror="false"/>
+                                
+                                <!-- 如果Windows特定模块不存在，则复制通用模块 -->
+                                <echo message="如果Windows特定模块不存在，则复制通用模块..."/>
+                                <copy todir="${project.build.directory}/modules-win" verbose="true" overwrite="false">
+                                    <fileset dir="${project.build.directory}/modules">
+                                        <include name="javafx-base.jar"/>
+                                        <include name="javafx-controls.jar"/>
+                                        <include name="javafx-fxml.jar"/>
+                                        <include name="javafx-graphics.jar"/>
+                                    </fileset>
+                                </copy>
+                                
+                                <!-- 列出modules-win目录内容用于验证 -->
+                                <echo message="modules-win目录内容:"/>
+                                <echo message="验证modules-win目录中的文件..."/>
+                                <exec executable="cmd" osfamily="windows">
+                            <arg value="/c"/>
+                            <arg value="dir"/>
+                            <arg value="${project.build.directory}/modules-win"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- JLink 插件 - 用于创建自定义JRE，包含JavaFX -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jlink-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <stripDebug>true</stripDebug>
+                    <compress>2</compress>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <launcher>Java版本管理器=com.jdkmanager.JdkManagerApp</launcher>
+                    <modulePath>
+                        <path>${project.build.directory}/modules</path>
+                    </modulePath>
+                    <bindServices>true</bindServices>
+                    <ignoreSigningInformation>true</ignoreSigningInformation>
+                    <jlinkVerbose>true</jlinkVerbose>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.fxml</include>
+                    <include>**/*.css</include>
+                    <include>**/*.png</include>
+                    <include>**/*.ico</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.jar</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <!-- 配置仓库 -->
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+    </repositories>
+</project>

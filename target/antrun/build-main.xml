@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <mkdir dir="C:\Users\luoyang\Desktop\javabb\target/modules-win" />
+    <echo message="检查Windows特定的JavaFX模块..." />
+    <copy file="C:\Users\luoyang\Desktop\javabb\target/modules/javafx-base-17.0.2-win.jar" tofile="C:\Users\luoyang\Desktop\javabb\target/modules-win/javafx-base.jar" failonerror="false" verbose="true" />
+    <copy file="C:\Users\luoyang\Desktop\javabb\target/modules/javafx-controls-17.0.2-win.jar" tofile="C:\Users\luoyang\Desktop\javabb\target/modules-win/javafx-controls.jar" failonerror="false" verbose="true" />
+    <copy file="C:\Users\luoyang\Desktop\javabb\target/modules/javafx-fxml-17.0.2-win.jar" tofile="C:\Users\luoyang\Desktop\javabb\target/modules-win/javafx-fxml.jar" failonerror="false" verbose="true" />
+    <copy file="C:\Users\luoyang\Desktop\javabb\target/modules/javafx-graphics-17.0.2-win.jar" tofile="C:\Users\luoyang\Desktop\javabb\target/modules-win/javafx-graphics.jar" failonerror="false" verbose="true" />
+    <echo message="如果Windows特定模块不存在，则复制通用模块..." />
+    <copy todir="C:\Users\luoyang\Desktop\javabb\target/modules-win" overwrite="false" verbose="true">
+      <fileset dir="C:\Users\luoyang\Desktop\javabb\target/modules">
+        <include name="javafx-base.jar" />
+        <include name="javafx-controls.jar" />
+        <include name="javafx-fxml.jar" />
+        <include name="javafx-graphics.jar" />
+      </fileset>
+    </copy>
+    <echo message="modules-win目录内容:" />
+    <echo message="验证modules-win目录中的文件..." />
+    <exec executable="cmd" osfamily="windows">
+      <arg value="/c" />
+      <arg value="dir" />
+      <arg value="C:\Users\luoyang\Desktop\javabb\target/modules-win" />
+    </exec>
+  </target>
+</project>
