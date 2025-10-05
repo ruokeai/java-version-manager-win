@@ -24,7 +24,7 @@ mvn clean package -DskipTests
 
 ```bash
 # 以管理员身份运行
-"以管理员身份运行.bat"
+"start-jdk-manager.bat"
 ```
 
 ## 主要功能
