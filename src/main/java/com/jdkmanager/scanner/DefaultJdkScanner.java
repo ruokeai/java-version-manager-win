@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,6 +109,9 @@ public class DefaultJdkScanner implements JdkScanner {
             }
         }
         
+        // 去重处理：相同路径和版本的JDK只保留一个
+        allJdks = removeDuplicateJdks(allJdks);
+        
         // 检测当前JDK
         detectCurrentJdk(allJdks);
         
@@ -165,6 +170,16 @@ public class DefaultJdkScanner implements JdkScanner {
         }
         
         try {
+            // 首先检查目录本身是否为JDK
+            if (JdkInfo.isValidJdk(directory)) {
+                JdkInfo jdkInfo = JdkInfo.fromPath(directory);
+                if (jdkInfo != null) {
+                    jdks.add(jdkInfo);
+                    // 只添加一次，不再继续扫描子目录
+                    return jdks;
+                }
+            }
+            
             // 遍历目录中的所有子目录
             List<Path> subdirectories = Files.list(directory)
                 .filter(Files::isDirectory)
@@ -620,6 +635,54 @@ public class DefaultJdkScanner implements JdkScanner {
             System.err.println("从注册表读取环境变量失败: " + e.getMessage());
             return null;
         }
+    }
+    
+    /**
+     * 移除重复的JDK条目
+     * 相同路径和版本的JDK只保留一个
+     * @param jdks JDK列表
+     * @return 去重后的JDK列表
+     */
+    private List<JdkInfo> removeDuplicateJdks(List<JdkInfo> jdks) {
+        if (jdks == null || jdks.isEmpty()) {
+            return jdks;
+        }
+        
+        List<JdkInfo> uniqueJdks = new ArrayList<>();
+        Set<String> seenJdkKeys = new HashSet<>();
+        
+        for (JdkInfo jdk : jdks) {
+            // 创建基于路径和版本的唯一标识
+            String jdkKey = createJdkKey(jdk);
+            
+            // 如果这个JDK还没有被添加过，则添加到结果列表
+            if (!seenJdkKeys.contains(jdkKey)) {
+                seenJdkKeys.add(jdkKey);
+                uniqueJdks.add(jdk);
+            }
+        }
+        
+        System.out.println("JDK去重完成: 原始数量=" + jdks.size() + ", 去重后数量=" + uniqueJdks.size());
+        
+        return uniqueJdks;
+    }
+    
+    /**
+     * 创建JDK的唯一标识
+     * 基于标准化后的绝对路径和版本号
+     * @param jdk JDK信息
+     * @return 唯一标识字符串
+     */
+    private String createJdkKey(JdkInfo jdk) {
+        if (jdk == null) {
+            return "";
+        }
+        
+        // 使用标准化后的绝对路径和版本号作为唯一标识
+        Path normalizedPath = jdk.getPath().normalize().toAbsolutePath();
+        String version = jdk.getVersion();
+        
+        return normalizedPath.toString().toLowerCase() + "|" + version;
     }
     
     /**

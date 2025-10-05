@@ -24,7 +24,7 @@ mvn clean package -DskipTests
 
 ```bash
 # 以管理员身份运行
-"以管理员身份运行.bat"
+"start-jdk-manager.bat"
 ```
 
 ## 主要功能
@@ -42,7 +42,7 @@ javabb/
 ├── src/                       # 源代码目录
 ├── target/                    # 构建输出目录
 ├── docs/                      # 文档目录
-└── "以管理员身份运行.bat"        # 启动脚本
+└── "start-jdk-manager.bat"        # 启动脚本
 ```
 
 ## 常见问题

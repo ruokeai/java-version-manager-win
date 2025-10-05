@@ -1,11 +1,15 @@
 package com.jdkmanager.scanner;
 
+import com.jdkmanager.scanner.JdkInfo;
+import com.jdkmanager.scanner.JdkScanner;
+import com.jdkmanager.scanner.DefaultJdkScanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -113,6 +117,60 @@ public class JdkScannerTest {
                         assertEquals(javaHomePath, jdkPath, "当前JDK路径应该与JAVA_HOME匹配");
                     }
                 });
+        }
+    }
+    
+    @Test
+    @DisplayName("测试JDK去重功能")
+    void testRemoveDuplicateJdks() {
+        // 创建测试用的JDK列表，包含重复项
+        List<JdkInfo> jdksWithDuplicates = new ArrayList<>();
+        
+        // 添加相同的JDK多次（相同路径和版本）
+        Path jdkPath = Path.of("C:\\Program Files\\Java\\jdk-11.0.15");
+        JdkInfo jdk1 = new JdkInfo("11.0.15", jdkPath, true);
+        JdkInfo jdk2 = new JdkInfo("11.0.15", jdkPath, true); // 相同路径和版本
+        
+        // 添加不同的JDK
+        Path jdkPath2 = Path.of("C:\\Program Files\\Java\\jdk-17.0.5");
+        JdkInfo jdk3 = new JdkInfo("17.0.5", jdkPath2, true);
+        
+        // 添加相同路径但不同版本的JDK
+        JdkInfo jdk4 = new JdkInfo("11.0.16", jdkPath, true);
+        
+        jdksWithDuplicates.add(jdk1);
+        jdksWithDuplicates.add(jdk2); // 重复项
+        jdksWithDuplicates.add(jdk3);
+        jdksWithDuplicates.add(jdk4);
+        
+        System.out.println("去重前的JDK数量: " + jdksWithDuplicates.size());
+        
+        // 使用反射调用私有方法进行测试
+        try {
+            java.lang.reflect.Method method = DefaultJdkScanner.class.getDeclaredMethod("removeDuplicateJdks", List.class);
+            method.setAccessible(true);
+            
+            @SuppressWarnings("unchecked")
+            List<JdkInfo> uniqueJdks = (List<JdkInfo>) method.invoke(scanner, jdksWithDuplicates);
+            
+            System.out.println("去重后的JDK数量: " + uniqueJdks.size());
+            
+            // 验证去重结果
+            assertEquals(3, uniqueJdks.size(), "去重后应该有3个JDK");
+            
+            // 验证包含的JDK
+            assertTrue(uniqueJdks.contains(jdk1), "应该包含第一个JDK");
+            assertTrue(uniqueJdks.contains(jdk3), "应该包含第三个JDK");
+            assertTrue(uniqueJdks.contains(jdk4), "应该包含第四个JDK");
+            
+            // 验证重复项被移除
+            long countJdk11_0_15 = uniqueJdks.stream()
+                .filter(jdk -> jdk.getVersion().equals("11.0.15") && jdk.getPath().equals(jdkPath))
+                .count();
+            assertEquals(1, countJdk11_0_15, "相同路径和版本的JDK应该只有一个");
+            
+        } catch (Exception e) {
+            fail("测试去重功能时发生异常: " + e.getMessage());
         }
     }
 }
